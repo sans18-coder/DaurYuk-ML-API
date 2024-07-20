@@ -23,4 +23,3 @@ steps:
       - "--port=8080"
 images:
   - "asia-southeast2-docker.pkg.dev/$PROJECT_ID/dauryuk-ml-artifact/dauryuk-ml-image:$COMMIT_SHA"
-logsBucket: "gs://dauryuk-ml-bucket/logs"
