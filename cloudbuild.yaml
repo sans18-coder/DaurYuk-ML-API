@@ -1,0 +1,26 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - "build"
+      - "-t"
+      - "asia-southeast2-docker.pkg.dev/$PROJECT_ID/dauryuk-ml-artifact/dauryuk-ml-image:$COMMIT_SHA"
+      - "."
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - "push"
+      - "asia-southeast2-docker.pkg.dev/$PROJECT_ID/dauryuk-ml-artifact/dauryuk-ml-image:$COMMIT_SHA"
+  - name: "gcr.io/cloud-builders/gcloud"
+    entrypoint: gcloud
+    args:
+      - "run"
+      - "deploy"
+      - "dauryuk-ml"
+      - "--image=asia-southeast2-docker.pkg.dev/$PROJECT_ID/dauryuk-ml-artifact/dauryuk-ml-image:$COMMIT_SHA"
+      - "--region=asia-southeast2"
+      - "--cpu=1"
+      - "--memory=2048Mi"
+      - "--allow-unauthenticated"
+      - "--port=8080"
+images:
+  - "asia-southeast2-docker.pkg.dev/$PROJECT_ID/dauryuk-ml-artifact/dauryuk-ml-image:$COMMIT_SHA"
+logsBucket: "gs://dauryuk-ml-bucket/logs"

@@ -1,14 +1,11 @@
 import os; os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import numpy as np 
 import tensorflow as tf 
-import random
 from http import HTTPStatus
 from PIL import Image
 from flask import Flask, jsonify, request
-from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 
-load_dotenv()
 
 app = Flask(__name__)
 
