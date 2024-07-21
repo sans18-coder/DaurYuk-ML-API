@@ -20,6 +20,7 @@ steps:
       - "--cpu=1"
       - "--memory=2048Mi"
       - "--allow-unauthenticated"
+      - "--set-secrets=BUCKET_NAME=bucket_name:latest"
 images:
   - "us-central1-docker.pkg.dev/$PROJECT_ID/dauryuk-ml-artifact/dauryuk-ml-image:$COMMIT_SHA"
 logsBucket: "gs://dauryuk-ml-bucket/logs"

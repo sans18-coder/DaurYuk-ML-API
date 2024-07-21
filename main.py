@@ -5,16 +5,23 @@ from http import HTTPStatus
 from PIL import Image
 from flask import Flask, jsonify, request
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
+from google.cloud import storage
+import random
 
-
+load_dotenv()
 app = Flask(__name__)
 
 app.config['ALLOWED_EXTENSIONS'] = set(['png','jpg','jpeg'])
 app.config['UPLOAD_FOLDER'] = 'static/uploads/'
 app.config['MODEL_CLASSIFICATION'] = 'models/my_model.h5'
+app.config['GCS_CREDENTIALS'] = './credentials/gcs.json'
 
 model = tf.keras.models.load_model(app.config['MODEL_CLASSIFICATION'],compile=False)
 
+bucket_name = os.environ.get('BUCKET_NAME','dauryuk-ml-bucket')
+client = storage.Client.from_service_account_json(json_credentials_path=app.config['GCS_CREDENTIALS'])
+bucket = storage.Bucket(client,bucket_name)
 def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.',1)[1] in app.config['ALLOWED_EXTENSIONS']
@@ -64,10 +71,15 @@ def predict():
             normalizationImage = np.expand_dims(normalizationImage,axis=0)
             normalizationImage = normalizationImage / 255
             predictResult = model.predict(normalizationImage)
+            imageName = imagePath.split('/')[-1]
+            blobPath = 'images/'+ str(random.randint(10000,99999))+imageName
+            blob = bucket.blob(blobPath)
+            blob.upload_from_filename(imagePath)
+            os.remove(imagePath)
             result = {
                 'predict' : classess[np.argmax(predictResult)][0],
                 'description' : classess[np.argmax(predictResult)][1],
-                'image' : request.host_url + imagePath
+                'image' : 'https://storage.googleapis.com/'+'BUCKET_NAME'+ blobPath
             }
             return jsonify({
                             'status': {
